@@ -1,0 +1,8 @@
+﻿robot/bin
+robot/obj
+server/bin
+server/obj
+ServerTest/bin
+ServerTest/obj
+.vs
+.idea
