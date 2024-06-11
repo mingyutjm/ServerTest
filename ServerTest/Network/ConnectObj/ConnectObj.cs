@@ -59,6 +59,9 @@ public class ConnectObj : IReference
             }
             else if (dataSize == 0)
             {
+                if (errorCode == SocketError.Interrupted || errorCode == SocketError.WouldBlock)
+                    return true;
+
                 Log.Error($"recv size: {dataSize}, error: {errorCode}");
                 return false;
             }

@@ -6,41 +6,33 @@ public static class Log
 {
     public static void Info(string msg,
                             [CallerFilePath] string fullFilePath = "",
-                            [CallerMemberName] string memberName = "",
                             [CallerLineNumber] int lineNumber = 0)
     {
         Console.ForegroundColor = ConsoleColor.White;
-        Console.WriteLine(
-            $"[Info]({Path.GetFileNameWithoutExtension(fullFilePath)}.{memberName}: {lineNumber}) {msg}");
+        Console.WriteLine($"[Info]({Path.GetFileName(fullFilePath)}:{lineNumber}) {msg}");
     }
 
     public static void Warning(string msg,
                                [CallerFilePath] string fullFilePath = "",
-                               [CallerMemberName] string memberName = "",
                                [CallerLineNumber] int lineNumber = 0)
     {
         Console.ForegroundColor = ConsoleColor.Yellow;
-        Console.WriteLine(
-            $"[Warning]({Path.GetFileNameWithoutExtension(fullFilePath)}.{memberName}: {lineNumber}) {msg}");
+        Console.WriteLine($"[Warning]({Path.GetFileName(fullFilePath)}:{lineNumber}) {msg}");
     }
 
     public static void Error(string msg,
                              [CallerFilePath] string fullFilePath = "",
-                             [CallerMemberName] string memberName = "",
                              [CallerLineNumber] int lineNumber = 0)
     {
         Console.ForegroundColor = ConsoleColor.Red;
-        Console.WriteLine(
-            $"[Error]({Path.GetFileNameWithoutExtension(fullFilePath)}.{memberName}: {lineNumber}) {msg}");
+        Console.WriteLine($"[Error]({Path.GetFileName(fullFilePath)}:{lineNumber}) {msg}");
     }
 
     public static void Exception(Exception e,
                                  [CallerFilePath] string fullFilePath = "",
-                                 [CallerMemberName] string memberName = "",
                                  [CallerLineNumber] int lineNumber = 0)
     {
         Console.ForegroundColor = ConsoleColor.Magenta;
-        Console.WriteLine(
-            $"[Exception]({Path.GetFileNameWithoutExtension(fullFilePath)}.{memberName}: {lineNumber}) {e.StackTrace}");
+        Console.WriteLine($"[Exception]({Path.GetFileName(fullFilePath)}:{lineNumber}) {e.StackTrace}");
     }
 }

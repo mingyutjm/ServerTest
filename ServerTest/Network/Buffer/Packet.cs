@@ -85,9 +85,11 @@ public class Packet : Buffer
 
     public void FillData(int size)
     {
+        _endIndex += size;
     }
 
     public void ReAllocBuffer()
     {
+        base.ReAllocBuffer(_endIndex - _beginIndex);
     }
 }

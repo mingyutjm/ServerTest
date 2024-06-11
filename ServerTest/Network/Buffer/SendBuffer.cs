@@ -50,16 +50,16 @@ public class SendBuffer : NetBuffer
 
         // 1.整体长度
         byte[] tempBytes = ByteArrayPool.Rent(sizeof(TotalSizeType));
+        Unsafe.As<byte, int>(ref tempBytes[0]) = totalSize;
         MemcpyToBuffer(tempBytes, sizeof(TotalSizeType));
-        totalSize = BitConverter.ToUInt16(tempBytes);
         ByteArrayPool.Return(tempBytes, true);
 
         // 2.头部
-        tempBytes = ByteArrayPool.Rent(packetHeadSize);
+        // tempBytes = ByteArrayPool.Rent(packetHeadSize);
         byte[] tempBytes2 = ByteArrayPool.Rent(packetHeadSize);
         PacketHead head = new PacketHead() { msgId = (ushort)packetToAdd.MsgId };
         MemcpyToBuffer(head.ToBytes(ref tempBytes2), packetHeadSize);
-        ByteArrayPool.Return(tempBytes, true);
+        // ByteArrayPool.Return(tempBytes, true);
         ByteArrayPool.Return(tempBytes2, true);
 
         // 3.数据

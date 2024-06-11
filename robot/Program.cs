@@ -48,5 +48,7 @@ class Program
                 break;
             System.Threading.Thread.Sleep(1000);
         }
+        Log.Error("Robot end.");
+        Console.ReadKey();
     }
 }

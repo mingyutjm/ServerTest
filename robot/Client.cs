@@ -39,7 +39,7 @@ namespace robot
                 // 发送数据
                 if (_lastMsg == null)
                 {
-                    _lastMsg = ArrayPool<byte>.Shared.Rent(_rand.Next(0, 5));
+                    _lastMsg = ArrayPool<byte>.Shared.Rent(_rand.Next(1, 10));
                     GetRandom(_lastMsg);
                     Log.Info($"send. size: {_lastMsg.Length}, msg: {_lastMsg.ToArray().ToStr()}");
 
@@ -59,8 +59,8 @@ namespace robot
                             Span<byte> msg = new Span<byte>(packet.GetBuffer(), 0, packet.GetDataLength());
                             Log.Info($"recv size {msg.Length}, msg: {msg.ToArray().ToStr()}");
 
-                            if (msg != _lastMsg)
-                                Log.Error(" !!!!!!!!!!!!!!!!! error.");
+                            // if (msg != _lastMsg)
+                            //     Log.Error(" !!!!!!!!!!!!!!!!! error.");
 
                             _lastMsg = null;
                             ++_index;
