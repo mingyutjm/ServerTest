@@ -10,10 +10,6 @@ public class RecvBuffer : NetBuffer
     {
     }
 
-    public new void Dispose()
-    {
-    }
-
     // 获取写buffer
     public int GetWriteBuffer(out Span<byte> buffer)
     {

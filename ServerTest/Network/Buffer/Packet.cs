@@ -39,31 +39,27 @@ public class Packet : Buffer
         Packet packet = new Packet(msgId);
         return packet;
     }
-    
+
     private Packet(int msgId)
     {
         _msgId = msgId;
         CleanBuffer();
-        _bufferSize = Const.DefaultPacketBufferSize;
         _beginIndex = 0;
         _endIndex = 0;
-        _buffer = ByteArrayPool.Rent(_bufferSize);
+        _buffer = ByteArrayPool.Rent(Const.DefaultPacketBufferSize);
+        _bufferSize = _buffer.Length;
     }
 
-    public new void Dispose()
+    public override void Dispose()
     {
         _msgId = 0;
-        _beginIndex = 0;
-        _endIndex = 0;
+        base.Dispose();
     }
 
     public void CleanBuffer()
     {
         if (_buffer != null)
-        {
             ByteArrayPool.Return(_buffer, true);
-        }
-
         _beginIndex = 0;
         _endIndex = 0;
         _bufferSize = 0;

@@ -18,9 +18,16 @@ namespace Server3
             if (_masterSocket == null)
                 return false;
 
-            _masterSocket.ConnectAsync(ip, port);
-            ConnectObj conn = new ConnectObj(this, _masterSocket);
-            _connects.Add(_masterSocket, conn);
+            try
+            {
+                _masterSocket.Connect(ip, port);
+                ConnectObj conn = new ConnectObj(this, _masterSocket);
+                _connects.Add(_masterSocket, conn);
+            }
+            catch (Exception e)
+            {
+                // ignored
+            }
             return true;
         }
 
@@ -46,7 +53,7 @@ namespace Server3
                 {
                     try
                     {
-                        _masterSocket.GetSocketOption(SocketOptionLevel.Socket, SocketOptionName.Error, _testError);
+                        _masterSocket!.GetSocketOption(SocketOptionLevel.Socket, SocketOptionName.Error, _testError);
                         ConnectObj conn = new ConnectObj(this, _masterSocket!);
                         _connects.Add(_masterSocket, conn);
                     }

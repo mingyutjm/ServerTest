@@ -100,7 +100,7 @@ public class ConnectObj : IReference
             int size = _socket.Send(pBuffer, SocketFlags.None, out SocketError errorCode);
             if (size > 0)
             {
-                Log.Error($"send size: {needSendSize}");
+                Log.Info($"send size: {needSendSize}");
                 _sendBuffer.RemoveData(size);
 
                 // 下一帧再发送

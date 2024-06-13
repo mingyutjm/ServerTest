@@ -68,7 +68,13 @@ public class Buffer : IReference
         _endIndex = newEndIndex;
     }
 
-    public void Dispose()
+    public virtual void Dispose()
     {
+        if (_buffer != null)
+            ByteArrayPool.Return(_buffer);
+        _buffer = null;
+        _bufferSize = 0;
+        _beginIndex = 0;
+        _endIndex = 0;
     }
 }

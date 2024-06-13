@@ -1,10 +1,14 @@
-﻿namespace Server3.Thread
+﻿namespace Server3
 {
 
-    public class Thread : IReference
+    public class GameThread : SnObject, IReference
     {
         protected bool _isRun = false;
-        protected System.Threading.Thread _thread;
+        protected Thread _thread;
+
+        private List<ThreadObject> _objects;
+        private List<ThreadObject> _tmpObjects;
+        private object _locker = new object();
 
         public bool IsRun => _isRun;
 
@@ -17,7 +21,7 @@
         public virtual bool Start()
         {
             _isRun = true;
-            _thread = new System.Threading.Thread(() =>
+            _thread = new Thread(() =>
             {
                 while (_isRun)
                 {
@@ -34,6 +38,10 @@
         }
 
         public virtual void Tick()
+        {
+        }
+
+        public void AddThreadObj(ThreadObject obj)
         {
         }
     }

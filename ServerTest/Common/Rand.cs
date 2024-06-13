@@ -4,7 +4,7 @@
     public class Rand
     {
         private int _seed;
-        private System.Random _rand = new Random();
+        private Random _rand = new Random();
 
         public int Seed => _seed;
 

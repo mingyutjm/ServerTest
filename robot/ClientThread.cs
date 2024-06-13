@@ -1,10 +1,10 @@
 ﻿using Server3;
-using Thread = Server3.Thread.Thread;
+using Server3;
 
 namespace robot
 {
 
-    public class ClientThread : Thread
+    public class ClientThread : GameThread
     {
         private int _msgCount;
         private Client? _client;

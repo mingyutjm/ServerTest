@@ -49,6 +49,7 @@ namespace server
                 Span<byte> msg = new Span<byte>(packet.GetBuffer(), 0, packet.GetDataLength());
                 Log.Info($"recv size {msg.Length}, msg: {msg.ToArray().ToStr()}");
                 conn.SendPacket(packet);
+                packet.Dispose();
                 ++_recvMsgCount;
                 ++_sendMsgCount;
                 _isShow = true;

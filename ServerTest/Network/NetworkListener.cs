@@ -37,7 +37,7 @@ namespace Server3
             {
                 try
                 {
-                    Socket newSocket = _masterSocket.Accept();
+                    Socket newSocket = _masterSocket!.Accept();
                     SetSocketOpt(newSocket);
                     ConnectObj newConn = new ConnectObj(this, newSocket);
                     _connects.Add(newSocket, newConn);

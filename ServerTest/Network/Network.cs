@@ -2,7 +2,7 @@
 
 namespace Server3;
 
-public class Network : IReference
+public class Network : ThreadObject, IReference
 {
     protected Socket? _masterSocket;
     protected Dictionary<Socket, ConnectObj> _connects = new Dictionary<Socket, ConnectObj>();
@@ -55,7 +55,6 @@ public class Network : IReference
 
         int timeout = 1000;
         Socket.Select(_readFds, _writeFds, _exceptFds, timeout);
-
         foreach (var (socket, conn) in _connects)
         {
             if (_exceptFds.Contains(socket))
@@ -110,5 +109,20 @@ public class Network : IReference
         Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         SetSocketOpt(socket);
         return socket;
+    }
+
+    public override bool Init()
+    {
+        throw new NotImplementedException();
+    }
+
+    public override void RegisterMsgFunction()
+    {
+        throw new NotImplementedException();
+    }
+
+    public override void Tick()
+    {
+        throw new NotImplementedException();
     }
 }

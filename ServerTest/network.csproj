@@ -8,10 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Base\" />
-    <Folder Include="Common\" />
     <Folder Include="Network\" />
-    <Folder Include="Thread\" />
   </ItemGroup>
 
 </Project>

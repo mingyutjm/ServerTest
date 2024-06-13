@@ -10,10 +10,6 @@ public class SendBuffer : NetBuffer
     {
     }
 
-    public new void Dispose()
-    {
-    }
-
     public int GetReadBuffer(out Span<byte> buffer)
     {
         int readSize = GetReadSize();
