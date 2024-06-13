@@ -14,7 +14,8 @@ public class RecvBuffer : NetBuffer
     {
     }
 
-    public int GetBuffer(out Span<byte> buffer)
+    // 获取写buffer
+    public int GetWriteBuffer(out Span<byte> buffer)
     {
         int writeSpace = GetWriteSize();
         buffer = new Span<byte>(_buffer, _endIndex, writeSpace);
@@ -29,7 +30,7 @@ public class RecvBuffer : NetBuffer
 
         // 1.读出 整体长度
         byte[] tempBytes = ByteArrayPool.Rent(sizeof(TotalSizeType));
-        MemcpyFromBuffer(tempBytes, sizeof(TotalSizeType));
+        CopyTo(tempBytes, sizeof(TotalSizeType));
         ushort totalSize = BitConverter.ToUInt16(tempBytes);
         ByteArrayPool.Return(tempBytes, true);
 
@@ -42,28 +43,28 @@ public class RecvBuffer : NetBuffer
         // 2.读出 PacketHead
         int packetHeadSize = Unsafe.SizeOf<PacketHead>();
         tempBytes = ByteArrayPool.Rent(packetHeadSize);
-        MemcpyFromBuffer(tempBytes, packetHeadSize);
+        CopyTo(tempBytes, packetHeadSize);
         PacketHead head = PacketHead.FromBytes(tempBytes);
         RemoveData(packetHeadSize);
         ByteArrayPool.Return(tempBytes, true);
 
         // 3.读出 协议
-        Packet? newPacket = new Packet(head.msgId);
+        Packet? newPacket = Packet.Create(head.msgId);
         int dataLength = totalSize - packetHeadSize - sizeof(TotalSizeType);
         while (newPacket.TotalSize < dataLength)
         {
             newPacket.ReAllocBuffer();
         }
 
-        MemcpyFromBuffer(newPacket.GetBuffer(), dataLength);
+        CopyTo(newPacket.GetBuffer(), dataLength);
         newPacket.FillData(dataLength);
         RemoveData(dataLength);
 
         return newPacket;
     }
 
-    // 将 _buffer 拷贝到 to
-    private void MemcpyFromBuffer(byte[] target, int length)
+    /// 将 _buffer 拷贝到 target
+    private void CopyTo(byte[] target, int length)
     {
         int readSize = GetReadSize();
         if (readSize < length)

@@ -2,7 +2,7 @@
 
 public static class Const
 {
-    public const int AdditionalSize = 10;          // << 10 bit, 1024
+    public const int AdditionalSize = 1024;        // << 10 bit, 1024
     public const int MaxBufferSize = 1024 * 1024;  // 1M
     public const int DefaultPacketBufferSize = 10; //  10 byte
     public const int DefaultSendBufferSize = 10;

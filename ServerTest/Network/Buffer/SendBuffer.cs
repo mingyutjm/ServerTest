@@ -14,26 +14,11 @@ public class SendBuffer : NetBuffer
     {
     }
 
-    public int GetBuffer(out Span<byte> buffer)
+    public int GetReadBuffer(out Span<byte> buffer)
     {
-        if (_dataSize <= 0)
-        {
-            buffer = default;
-            return 0;
-        }
-
-        if (_beginIndex < _endIndex)
-        {
-            int length = _endIndex - _beginIndex;
-            buffer = new Span<byte>(_buffer, _beginIndex, length);
-            return length;
-        }
-        else
-        {
-            int length = _bufferSize - _beginIndex;
-            buffer = new Span<byte>(_buffer, _beginIndex, length);
-            return length;
-        }
+        int readSize = GetReadSize();
+        buffer = new Span<byte>(_buffer, _beginIndex, readSize);
+        return readSize;
     }
 
     public void AddPacket(Packet packetToAdd)
@@ -51,23 +36,23 @@ public class SendBuffer : NetBuffer
         // 1.整体长度
         byte[] tempBytes = ByteArrayPool.Rent(sizeof(TotalSizeType));
         Unsafe.As<byte, int>(ref tempBytes[0]) = totalSize;
-        MemcpyToBuffer(tempBytes, sizeof(TotalSizeType));
+        CopyFrom(tempBytes, sizeof(TotalSizeType));
         ByteArrayPool.Return(tempBytes, true);
 
         // 2.头部
         // tempBytes = ByteArrayPool.Rent(packetHeadSize);
         byte[] tempBytes2 = ByteArrayPool.Rent(packetHeadSize);
         PacketHead head = new PacketHead() { msgId = (ushort)packetToAdd.MsgId };
-        MemcpyToBuffer(head.ToBytes(ref tempBytes2), packetHeadSize);
+        CopyFrom(head.ToBytes(ref tempBytes2), packetHeadSize);
         // ByteArrayPool.Return(tempBytes, true);
         ByteArrayPool.Return(tempBytes2, true);
 
         // 3.数据
-        MemcpyToBuffer(packetToAdd.GetBuffer(), packetToAdd.GetDataLength());
+        CopyFrom(packetToAdd.GetBuffer(), packetToAdd.GetDataLength());
     }
 
-    // 将 source 拷贝到 _buffer
-    private void MemcpyToBuffer(byte[] source, int size)
+    /// 将 source 拷贝到 _buffer
+    private void CopyFrom(byte[] source, int size)
     {
         int writeSize = GetWriteSize();
         if (writeSize < size)

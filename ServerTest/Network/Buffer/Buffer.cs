@@ -38,10 +38,12 @@ public class Buffer : IReference
         // 有循环
         else
         {
+            // 没有数据
             if (_beginIndex == _endIndex && dataLength <= 0)
             {
                 newEndIndex = 0;
             }
+            // 有数据 (数据在两端)
             else
             {
                 // 1.先COPY尾部

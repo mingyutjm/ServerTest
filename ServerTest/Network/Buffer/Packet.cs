@@ -34,7 +34,13 @@ public class Packet : Buffer
     {
     }
 
-    public Packet(int msgId)
+    public static Packet Create(int msgId)
+    {
+        Packet packet = new Packet(msgId);
+        return packet;
+    }
+    
+    private Packet(int msgId)
     {
         _msgId = msgId;
         CleanBuffer();

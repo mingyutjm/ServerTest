@@ -50,7 +50,7 @@ public class ConnectObj : IReference
                 _recvBuffer.ReAllocBuffer();
             }
 
-            int emptySize = _recvBuffer.GetBuffer(out pBuffer);
+            int emptySize = _recvBuffer.GetWriteBuffer(out pBuffer);
             int dataSize = _socket.Receive(pBuffer, SocketFlags.None, out SocketError errorCode);
             if (dataSize > 0)
             {
@@ -91,7 +91,7 @@ public class ConnectObj : IReference
         while (true)
         {
             Span<byte> pBuffer = null;
-            int needSendSize = _sendBuffer.GetBuffer(out pBuffer);
+            int needSendSize = _sendBuffer.GetReadBuffer(out pBuffer);
 
             // 没有数据可发送
             if (needSendSize <= 0)

@@ -12,11 +12,11 @@ namespace Server3
 
         public NetBuffer(int size)
         {
-            _bufferSize = size;
             _beginIndex = 0;
             _endIndex = 0;
             _dataSize = 0;
-            _buffer = ByteArrayPool.Rent(_bufferSize);
+            _buffer = ByteArrayPool.Rent(size);
+            _bufferSize = _buffer.Length;
         }
 
         public bool HasData()
@@ -40,6 +40,7 @@ namespace Server3
         // 当前可写长度
         public int GetWriteSize()
         {
+            // 只返回尾部的长度
             if (_beginIndex <= _endIndex)
             {
                 return _bufferSize - _endIndex;
@@ -50,7 +51,7 @@ namespace Server3
             }
         }
 
-        // 当前可读长度
+        // 当前可读长度, 数据长度
         public int GetReadSize()
         {
             if (_dataSize <= 0)
@@ -60,30 +61,31 @@ namespace Server3
             {
                 return _endIndex - _beginIndex;
             }
+            // 只返回尾部的数据长度
             else
             {
                 return _bufferSize - _beginIndex;
             }
         }
 
+        // 操作 _endIndex 往右
         public void FillData(int size)
         {
             _dataSize += size;
-
-            // 移动到头部
-            if ((_bufferSize - _endIndex) <= size)
+            // 往_endIndex后面添
+            if (_bufferSize - _endIndex <= size)
             {
                 size -= _bufferSize - _endIndex;
                 _endIndex = 0;
             }
-
             _endIndex += size;
         }
 
+        // 操作 _beginIndex 往右
         public void RemoveData(int size)
         {
             _dataSize -= size;
-            if ((_beginIndex + size) >= _bufferSize)
+            if (_beginIndex + size >= _bufferSize)
             {
                 size -= _bufferSize - _beginIndex;
                 _beginIndex = 0;
