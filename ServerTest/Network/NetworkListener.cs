@@ -6,6 +6,23 @@ namespace Server3
 
     public class NetworkListener : Network
     {
+        public override bool Init()
+        {
+            return true;
+        }
+
+        public override void RegisterMsgFunction()
+        {
+        }
+
+        public override void Tick()
+        {
+            bool rt = Select();
+            if (_readFds.Contains(_masterSocket))
+                Accept();
+            // return rt;
+        }
+
         public bool Listen(string ip, int port)
         {
             _masterSocket = CreateSocket();
@@ -39,8 +56,7 @@ namespace Server3
                 {
                     Socket newSocket = _masterSocket!.Accept();
                     SetSocketOpt(newSocket);
-                    ConnectObj newConn = new ConnectObj(this, newSocket);
-                    _connects.Add(newSocket, newConn);
+                    CreateConnectObj(newSocket);
                     acceptCount++;
                 }
                 catch (SocketException e)
@@ -48,14 +64,6 @@ namespace Server3
                     return acceptCount;
                 }
             }
-        }
-
-        public bool Tick()
-        {
-            bool rt = Select();
-            if (_readFds.Contains(_masterSocket))
-                Accept();
-            return rt;
         }
     }
 

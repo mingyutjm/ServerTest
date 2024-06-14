@@ -2,7 +2,7 @@
 
 namespace Server3;
 
-public class Network : ThreadObject, IReference
+public abstract class Network : ThreadObject
 {
     protected Socket? _masterSocket;
     protected Dictionary<Socket, ConnectObj> _connects = new Dictionary<Socket, ConnectObj>();
@@ -14,7 +14,7 @@ public class Network : ThreadObject, IReference
 
     public Socket? Socket => _masterSocket;
 
-    public void Dispose()
+    public override void Dispose()
     {
         foreach (var (socket, conn) in _connects)
         {
@@ -89,6 +89,12 @@ public class Network : ThreadObject, IReference
         return true;
     }
 
+    public void CreateConnectObj(Socket socket)
+    {
+        ConnectObj conn = new ConnectObj(this, socket);
+        _connects.Add(socket, conn);
+    }
+
     protected static void SetSocketOpt(Socket socket)
     {
         // 1.端口关闭后马上重新启用
@@ -109,20 +115,5 @@ public class Network : ThreadObject, IReference
         Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         SetSocketOpt(socket);
         return socket;
-    }
-
-    public override bool Init()
-    {
-        throw new NotImplementedException();
-    }
-
-    public override void RegisterMsgFunction()
-    {
-        throw new NotImplementedException();
-    }
-
-    public override void Tick()
-    {
-        throw new NotImplementedException();
     }
 }

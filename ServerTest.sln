@@ -3,11 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.6.33723.286
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "network", "ServerTest\network.csproj", "{A8631C71-4C0A-44F7-9791-89E768A53428}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "libserver", "ServerTest\libserver.csproj", "{A8631C71-4C0A-44F7-9791-89E768A53428}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "robot", "robot\robot.csproj", "{31C80AB7-F54F-4CB6-9148-D854B22A7B23}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "server", "server\server.csproj", "{98D42F73-A579-480E-9D31-FAEA396929FD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "login", "login\login.csproj", "{2A4BBA04-9257-4B68-B4A1-3B32CA2453FF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,6 +29,10 @@ Global
 		{98D42F73-A579-480E-9D31-FAEA396929FD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{98D42F73-A579-480E-9D31-FAEA396929FD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{98D42F73-A579-480E-9D31-FAEA396929FD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2A4BBA04-9257-4B68-B4A1-3B32CA2453FF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2A4BBA04-9257-4B68-B4A1-3B32CA2453FF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2A4BBA04-9257-4B68-B4A1-3B32CA2453FF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2A4BBA04-9257-4B68-B4A1-3B32CA2453FF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -9,6 +9,15 @@ namespace Server3
         private int _port;
         private byte[] _testError = new byte[4];
 
+        public override bool Init()
+        {
+            return true;
+        }
+
+        public override void RegisterMsgFunction()
+        {
+        }
+
         public bool Connect(string ip, int port)
         {
             _ip = ip;
@@ -21,8 +30,7 @@ namespace Server3
             try
             {
                 _masterSocket.Connect(ip, port);
-                ConnectObj conn = new ConnectObj(this, _masterSocket);
-                _connects.Add(_masterSocket, conn);
+                CreateConnectObj(_masterSocket);
             }
             catch (Exception e)
             {
@@ -36,7 +44,7 @@ namespace Server3
             return _connects.Count > 0;
         }
 
-        public bool Tick()
+        public override void Tick()
         {
             bool selectSuccess = Select();
             if (!IsConnected())
@@ -46,7 +54,7 @@ namespace Server3
                     Log.Error($"connect except. socket: {_masterSocket}, re connect");
                     Dispose();
                     Connect(_ip, _port);
-                    return selectSuccess;
+                    return;
                 }
 
                 if (_readFds.Contains(_masterSocket) || _writeFds.Contains(_masterSocket))
@@ -54,8 +62,7 @@ namespace Server3
                     try
                     {
                         _masterSocket!.GetSocketOption(SocketOptionLevel.Socket, SocketOptionName.Error, _testError);
-                        ConnectObj conn = new ConnectObj(this, _masterSocket!);
-                        _connects.Add(_masterSocket, conn);
+                        CreateConnectObj(_masterSocket);
                     }
                     catch (Exception e)
                     {
@@ -83,8 +90,6 @@ namespace Server3
                     // }
                 }
             }
-
-            return selectSuccess;
         }
 
         public bool HasRecvData()

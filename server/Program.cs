@@ -14,8 +14,7 @@ class Program
         bool isRun = true;
         while (isRun)
         {
-            if (!server.Tick())
-                break;
+            server.Tick();
             server.DataHandler();
         }
         server.Dispose();

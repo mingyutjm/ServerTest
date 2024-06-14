@@ -4,7 +4,6 @@
     public abstract class ServerApp
     {
         protected AppType _appType;
-
         protected Global _global;
         protected ThreadMgr _threadMgr;
 
@@ -18,6 +17,8 @@
 
             _global = Global.Create();
             _threadMgr = ThreadMgr.Create();
+
+            UpdateTime();
 
             // 创建线程
             for (int i = 0; i < 3; i++)
