@@ -5,7 +5,7 @@
     {
         private ulong _lastThreadSn = 0;
         private object _locker = new object();
-        private List<GameThread> _threads;
+        private List<GameThread> _threads = new List<GameThread>(4);
 
         protected override void OnInit()
         {
@@ -88,6 +88,17 @@
                 var findThread = _threads[lastThreadIndex];
                 findThread.AddThreadObj(obj);
                 _lastThreadSn = findThread.Sn;
+            }
+        }
+
+        public void AddPacket(Packet packet)
+        {
+            lock (_locker)
+            {
+                foreach (var thread in _threads)
+                {
+                    thread.AddPacket(packet);
+                }
             }
         }
 

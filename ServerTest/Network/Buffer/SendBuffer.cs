@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System.Net.Sockets;
+using System.Runtime.CompilerServices;
 
 namespace Server3;
 
@@ -6,7 +7,7 @@ using TotalSizeType = ushort;
 
 public class SendBuffer : NetBuffer
 {
-    public SendBuffer(int size) : base(size)
+    public SendBuffer(int size, ConnectObj conn) : base(size, conn)
     {
     }
 

@@ -11,6 +11,17 @@
         public Global Global => _global;
         public ThreadMgr ThreadMgr => _threadMgr;
 
+        public static void StartMain(ServerApp app)
+        {
+            Log.Info($"Start {app.GetType().Name}");
+            app.Init();
+            app.StartAllThread();
+            app.Run();
+            app.Shutdown();
+            Log.Info($"Shutdown {app.GetType().Name}");
+            Console.ReadKey();
+        }
+
         public ServerApp(AppType appType)
         {
             _appType = appType;
@@ -27,7 +38,7 @@
             }
         }
 
-        public abstract void InitApp();
+        public abstract void Init();
 
         public void Shutdown()
         {
@@ -50,7 +61,7 @@
             }
         }
 
-        protected void UpdateTime()
+        public void UpdateTime()
         {
             var timeValue = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
             Global.Instance.timeTick = (ulong)timeValue;

@@ -1,5 +1,7 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System.Net.Sockets;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using MemoryPack;
 
 namespace Server3;
 
@@ -27,22 +29,25 @@ public struct PacketHead
 public class Packet : Buffer
 {
     private int _msgId;
+    private Socket _socket;
 
     public int MsgId => _msgId;
+    public Socket Socket => _socket;
 
-    public Packet() : this(0)
+    public Packet() : this(0, null)
     {
     }
 
-    public static Packet Create(int msgId)
+    public static Packet Create(int msgId, Socket socket)
     {
-        Packet packet = new Packet(msgId);
+        Packet packet = new Packet(msgId, socket);
         return packet;
     }
 
-    private Packet(int msgId)
+    private Packet(int msgId, Socket socket)
     {
         _msgId = msgId;
+        _socket = socket;
         CleanBuffer();
         _beginIndex = 0;
         _endIndex = 0;
@@ -93,5 +98,18 @@ public class Packet : Buffer
     public void ReAllocBuffer()
     {
         base.ReAllocBuffer(_endIndex - _beginIndex);
+    }
+
+    public void SerializeToBuffer<T>(T obj)
+    {
+        byte[] binData = MemoryPackSerializer.Serialize(obj);
+        AddBuffer(binData, binData.Length);
+    }
+
+    public T? Deserialize<T>()
+    {
+        Span<byte> bufferSpan = new Span<byte>(_buffer, 0, GetDataLength());
+        T? obj = MemoryPackSerializer.Deserialize<T>(bufferSpan);
+        return obj;
     }
 }

@@ -2,7 +2,7 @@
 
 namespace Server3;
 
-public abstract class Network : ThreadObject
+public abstract class Network : ThreadObject, ISocketObject
 {
     protected Socket? _masterSocket;
     protected Dictionary<Socket, ConnectObj> _connects = new Dictionary<Socket, ConnectObj>();
@@ -12,7 +12,7 @@ public abstract class Network : ThreadObject
     protected List<Socket?> _writeFds = new List<Socket?>();
     protected List<Socket?> _exceptFds = new List<Socket?>();
 
-    public Socket? Socket => _masterSocket;
+    public Socket GetSocket() => _masterSocket;
 
     public override void Dispose()
     {

@@ -6,7 +6,7 @@ using TotalSizeType = ushort;
 
 public class RecvBuffer : NetBuffer
 {
-    public RecvBuffer(int size) : base(size)
+    public RecvBuffer(int size, ConnectObj conn) : base(size, conn)
     {
     }
 
@@ -45,7 +45,8 @@ public class RecvBuffer : NetBuffer
         ByteArrayPool.Return(tempBytes, true);
 
         // 3.读出 协议
-        Packet? newPacket = Packet.Create(head.msgId);
+        var socket = _connectObj.Socket;
+        Packet? newPacket = Packet.Create(head.msgId, socket);
         int dataLength = totalSize - packetHeadSize - sizeof(TotalSizeType);
         while (newPacket.TotalSize < dataLength)
         {

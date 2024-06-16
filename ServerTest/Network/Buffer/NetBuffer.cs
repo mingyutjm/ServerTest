@@ -9,9 +9,11 @@ namespace Server3
         // 重合时有两种可能，一种是没有数据，另一种是满数据
         // 有效数据长度
         protected int _dataSize;
+        protected ConnectObj _connectObj;
 
-        public NetBuffer(int size)
+        public NetBuffer(int size, ConnectObj conn)
         {
+            _connectObj = conn;
             _beginIndex = 0;
             _endIndex = 0;
             _dataSize = 0;

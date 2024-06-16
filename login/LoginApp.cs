@@ -9,9 +9,10 @@ namespace login
         {
         }
 
-        public override void InitApp()
+        public override void Init()
         {
             AddListenerToThread("127.0.0.1", 2233);
+            _threadMgr.AddObjToThread(new TestMsgHandler());
         }
     }
 

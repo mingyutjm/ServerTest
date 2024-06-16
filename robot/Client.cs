@@ -43,7 +43,7 @@ namespace robot
                     GetRandom(_lastMsg);
                     Log.Info($"send. size: {_lastMsg.Length}, msg: {_lastMsg.ToArray().ToStr()}");
 
-                    Packet packet = Packet.Create(1);
+                    Packet packet = Packet.Create(1, _masterSocket);
                     packet.AddBuffer(_lastMsg, _lastMsg.Length);
                     SendPacket(packet);
                     packet.Dispose();

@@ -18,8 +18,8 @@ public class ConnectObj : IReference
         _network = network;
         _socket = socket;
 
-        _recvBuffer = new RecvBuffer(Const.DefaultRecvBufferSize);
-        _sendBuffer = new SendBuffer(Const.DefaultSendBufferSize);
+        _recvBuffer = new RecvBuffer(Const.DefaultRecvBufferSize, this);
+        _sendBuffer = new SendBuffer(Const.DefaultSendBufferSize, this);
     }
 
     public void Dispose()
@@ -41,7 +41,8 @@ public class ConnectObj : IReference
 
     public bool Recv()
     {
-        Span<byte> pBuffer = null;
+        bool hasRes = false;
+        Span<byte> writeBuf = null;
         while (true)
         {
             // 总空间数据不足一个头的大小，扩容
@@ -50,8 +51,8 @@ public class ConnectObj : IReference
                 _recvBuffer.ReAllocBuffer();
             }
 
-            int emptySize = _recvBuffer.GetWriteBuffer(out pBuffer);
-            int dataSize = _socket.Receive(pBuffer, SocketFlags.None, out SocketError errorCode);
+            int emptySize = _recvBuffer.GetWriteBuffer(out writeBuf);
+            int dataSize = _socket.Receive(writeBuf, SocketFlags.None, out SocketError errorCode);
             if (dataSize > 0)
             {
                 Log.Info($"recv size: {dataSize}");
@@ -60,20 +61,38 @@ public class ConnectObj : IReference
             else if (dataSize == 0)
             {
                 if (errorCode == SocketError.Interrupted || errorCode == SocketError.WouldBlock)
-                    return true;
+                {
+                    hasRes = true;
+                    break;
+                }
 
                 Log.Error($"recv size: {dataSize}, error: {errorCode}");
-                return false;
+                break;
             }
             else
             {
                 if (errorCode == SocketError.Interrupted || errorCode == SocketError.WouldBlock)
-                    return true;
+                {
+                    hasRes = true;
+                    break;
+                }
 
                 Log.Error($"recv size: {dataSize}, error: {errorCode}");
-                return false;
+                break;
             }
         }
+
+        if (hasRes)
+        {
+            while (true)
+            {
+                var packet = _recvBuffer.GetPacket();
+                if (packet == null)
+                    break;
+                ThreadMgr.Instance.AddPacket(packet);
+            }
+        }
+        return hasRes;
     }
 
     public bool HasSendData()

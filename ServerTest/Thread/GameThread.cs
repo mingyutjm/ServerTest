@@ -6,10 +6,9 @@
         protected bool _isRun = false;
         protected Thread _thread;
 
-        private List<ThreadObject> _objects;
-        private List<ThreadObject> _waitingAddObjects;
+        private List<ThreadObject> _objects = new List<ThreadObject>(4);
+        private List<ThreadObject> _objectsTemp = new List<ThreadObject>(4);
         private object _locker = new object();
-        private bool _isTick = false;
 
         public bool IsRun => _isRun;
 
@@ -39,44 +38,60 @@
 
         public void Stop()
         {
-            _isRun = false;
-            _thread.Join();
+            if (_isRun)
+            {
+                _isRun = false;
+                _thread.Join();
+            }
         }
 
         public virtual void Tick()
         {
-            _isTick = true;
-            for (int i = _objects.Count; i >= 0; i--)
+            lock (_locker)
+            {
+                _objectsTemp.AddRange(_objects);
+            }
+
+            for (int i = _objects.Count - 1; i >= 0; i--)
             {
                 var obj = _objects[i];
+                obj.ProcessPacket();
                 obj.Tick();
                 if (!obj.IsActive)
                 {
+                    lock (_locker)
+                    {
+                        _objects.RemoveAt(i);
+                    }
                     obj.Dispose();
-                    _objects.RemoveAt(i);
                 }
             }
-            _isTick = false;
 
-            foreach (var obj in _waitingAddObjects)
-            {
-                _objects.Add(obj);
-            }
-            _waitingAddObjects.Clear();
-
+            _objectsTemp.Clear();
             Thread.Sleep(1);
         }
 
         public void AddThreadObj(ThreadObject obj)
         {
             obj.RegisterMsgFunction();
-            if (_isTick)
-            {
-                _waitingAddObjects.Add(obj);
-            }
-            else
+            lock (_locker)
             {
                 _objects.Add(obj);
+            }
+        }
+
+        public void AddPacket(Packet packet)
+        {
+            lock (_locker)
+            {
+                // lock
+                foreach (var obj in _objects)
+                {
+                    if (obj.IsFollowMsgId(packet.MsgId))
+                    {
+                        obj.AddPacket(packet);
+                    }
+                }
             }
         }
     }
