@@ -15,14 +15,14 @@
         public static T Instance => s_instance ?? throw new Exception("Instance is not init");
     }
 
-    // public interface IMgr
-    // {
-    //     public void Init();
-    //     public void Shutdown();
-    //     public void Tick(float deltaTime);
-    // }
+    public interface IMgr<T>
+    {
+        public void Init();
+        public void Shutdown();
+        // public void Tick(float deltaTime);
+    }
 
-    public abstract class Mgr<T> : Singleton<T> where T : new()
+    public abstract class Mgr<T> : Singleton<T>, IMgr<T> where T : new()
     {
         protected bool _isInit;
 

@@ -89,7 +89,7 @@ public class ConnectObj : IReference
                 var packet = _recvBuffer.GetPacket();
                 if (packet == null)
                     break;
-                ThreadMgr.Instance.AddPacket(packet);
+                ThreadMgr.Instance.DispatchPacket(packet);
             }
         }
         return hasRes;

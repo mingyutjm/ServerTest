@@ -1,18 +1,38 @@
 ﻿namespace Server3
 {
 
-    public class ThreadMgr : Mgr<ThreadMgr>
+    public class ThreadMgr : ThreadObjectList, IMgr<ThreadMgr>
     {
-        private ulong _lastThreadSn = 0;
-        private object _locker = new object();
-        private List<GameThread> _threads = new List<GameThread>(4);
+        // Mgr
+        protected bool _isInit;
+        protected static ThreadMgr s_instance;
 
-        protected override void OnInit()
+        public static ThreadMgr Create()
         {
+            if (s_instance == null)
+                s_instance = new ThreadMgr();
+            return s_instance;
         }
 
-        protected override void OnShutdown()
+        public static ThreadMgr Instance => s_instance ?? throw new Exception("Instance is not init");
+
+        private ulong _lastThreadSn = 0;
+        private object _threadLocker = new object();
+        private List<GameThread> _threads = new List<GameThread>(4);
+
+        private object _locatorLocker = new object();
+        private Dictionary<AppType, Network> _networkLocator;
+
+        public void Init()
         {
+            if (_isInit)
+                return;
+            _isInit = true;
+        }
+
+        public void Shutdown()
+        {
+            _isInit = false;
             foreach (var thread in _threads)
             {
                 thread.Dispose();
@@ -40,28 +60,28 @@
 
         public void NewThread()
         {
-            lock (_locker)
+            lock (_threadLocker)
             {
                 GameThread gameThread = new GameThread();
                 _threads.Add(gameThread);
             }
         }
 
-        public void AddObjToThread(ThreadObject obj)
+        public bool AddObjToThread(ThreadObject obj)
         {
-            lock (_locker)
+            lock (_threadLocker)
             {
                 // 在加入之前初始化一下
                 if (!obj.Init())
                 {
                     Log.Error("AddThreadObj Failed. ThreadObject init failed.");
-                    return;
+                    return false;
                 }
 
                 if (_threads.Count == 0)
                 {
                     Log.Error("AddThreadObj Failed. no thead.");
-                    return;
+                    return false;
                 }
                 // 找到上一次的线程
                 int lastThreadIndex = 0;
@@ -71,7 +91,7 @@
                     if (lastThreadIndex == -1)
                     {
                         Log.Error("AddThreadObj Failed. cant find last thread.");
-                        return;
+                        return false;
                     }
                 }
 
@@ -86,18 +106,55 @@
                 }
 
                 var findThread = _threads[lastThreadIndex];
-                findThread.AddThreadObj(obj);
+                findThread.AddObject(obj);
                 _lastThreadSn = findThread.Sn;
+            }
+            return true;
+        }
+
+        public void AddNetworkToThread(AppType appType, Network network)
+        {
+            if (network is ThreadObject threadObject)
+            {
+                if (!AddObjToThread(threadObject))
+                    return;
+                lock (_locatorLocker)
+                {
+                    _networkLocator.TryAdd(appType, network);
+                }
             }
         }
 
-        public void AddPacket(Packet packet)
+        public bool TryGetNetwork(AppType appType, out Network network)
         {
-            lock (_locker)
+            lock (_locatorLocker)
+            {
+                return _networkLocator.TryGetValue(appType, out network);
+            }
+        }
+
+        public void DispatchPacket(Packet packet)
+        {
+            // 主线程
+            AddPacketToList(packet);
+
+            // 子线程
+            lock (_threadLocker)
             {
                 foreach (var thread in _threads)
                 {
-                    thread.AddPacket(packet);
+                    thread.AddPacketToList(packet);
+                }
+            }
+        }
+
+        public void SendPacket(Packet packet)
+        {
+            if (TryGetNetwork(AppType.Listen, out Network network))
+            {
+                if (network is NetworkListener listener)
+                {
+                    listener.SendPacket(packet);
                 }
             }
         }

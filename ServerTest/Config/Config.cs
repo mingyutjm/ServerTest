@@ -6,7 +6,7 @@
     {
         // Global 和 None 值相同， Global 只用于读取配置
         None = 0,
-        Global = 0,
+        Listen = 0,
         DbMgr = 1,
         GameMgr = 1 << 1,
         SpaceMgr = 1 << 2,

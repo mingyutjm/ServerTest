@@ -56,6 +56,16 @@
                 _msgList.Add(packet);
             }
         }
+
+        public void DispatchPacket(Packet packet)
+        {
+            ThreadMgr.Instance.DispatchPacket(packet);
+        }
+
+        public void SendPacket(Packet packet)
+        {
+            ThreadMgr.Instance.SendPacket(packet);
+        }
     }
 
 }
