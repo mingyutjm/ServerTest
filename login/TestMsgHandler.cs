@@ -17,7 +17,7 @@ namespace login
 
         public override void RegisterMsgFunction()
         {
-            RegisterFunction((int)MsgId.TestMsg, HandleMsg);
+            // RegisterFunction((int)MsgId.TestMsg, HandleMsg);
         }
 
         public override void Tick()

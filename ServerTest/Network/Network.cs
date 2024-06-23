@@ -2,6 +2,11 @@
 
 namespace Server3;
 
+/// <summary>
+/// 1. 创建Socket，设置Socket，
+/// 2. 添加和删除ConnectObject对象
+/// 3. 通过Select调用ConnectObject的Recv和Send
+/// </summary>
 public abstract class Network : ThreadObject, ISocketObject
 {
     protected Socket? _masterSocket;
@@ -12,7 +17,7 @@ public abstract class Network : ThreadObject, ISocketObject
     protected List<Socket?> _writeFds = new List<Socket?>();
     protected List<Socket?> _exceptFds = new List<Socket?>();
 
-    public Socket GetSocket() => _masterSocket;
+    public Socket Socket => _masterSocket;
 
     public override void Dispose()
     {
@@ -23,6 +28,7 @@ public abstract class Network : ThreadObject, ISocketObject
         _connects.Clear();
         _masterSocket?.Close();
         _masterSocket = null;
+        base.Dispose();
     }
 
     public bool Select()

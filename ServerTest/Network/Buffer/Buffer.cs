@@ -2,6 +2,9 @@
 
 namespace Server3;
 
+/// <summary>
+/// 环形Buffer
+/// </summary>
 public class Buffer : IReference
 {
     protected static ArrayPool<byte> ByteArrayPool = ArrayPool<byte>.Shared;

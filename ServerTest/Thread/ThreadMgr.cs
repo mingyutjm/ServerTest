@@ -21,7 +21,7 @@
         private List<GameThread> _threads = new List<GameThread>(4);
 
         private object _locatorLocker = new object();
-        private Dictionary<AppType, Network> _networkLocator;
+        private Dictionary<AppType, Network> _networkLocator = new Dictionary<AppType, Network>(1);
 
         public void Init()
         {
@@ -67,6 +67,12 @@
             }
         }
 
+        /// <summary>
+        /// 找一个GameThread包裹住ThreadObject
+        /// 找的过程负载均衡
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
         public bool AddObjToThread(ThreadObject obj)
         {
             lock (_threadLocker)
@@ -114,14 +120,11 @@
 
         public void AddNetworkToThread(AppType appType, Network network)
         {
-            if (network is ThreadObject threadObject)
+            if (!AddObjToThread(network))
+                return;
+            lock (_locatorLocker)
             {
-                if (!AddObjToThread(threadObject))
-                    return;
-                lock (_locatorLocker)
-                {
-                    _networkLocator.TryAdd(appType, network);
-                }
+                _networkLocator.TryAdd(appType, network);
             }
         }
 

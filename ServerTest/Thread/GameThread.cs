@@ -7,8 +7,6 @@
         protected Thread _thread;
 
         private List<ThreadObject> _objects = new List<ThreadObject>(4);
-        private List<ThreadObject> _objectsTemp = new List<ThreadObject>(4);
-        private object _locker = new object();
 
         public bool IsRun => _isRun;
 

@@ -69,6 +69,7 @@
             Global.Instance.yearDay = now.DayOfYear;
         }
 
+        // 服务器的主 socket listener
         public bool AddListenerToThread(string ip, int port)
         {
             NetworkListener netListen = new NetworkListener();
@@ -77,7 +78,7 @@
                 netListen.Dispose();
                 return false;
             }
-            _threadMgr.AddObjToThread(netListen);
+            _threadMgr.AddNetworkToThread(AppType.Listen, netListen);
             return true;
         }
     }

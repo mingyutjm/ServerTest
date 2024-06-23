@@ -5,7 +5,7 @@ namespace Server3
 
     public interface ISocketObject
     {
-        public Socket GetSocket();
+        public Socket Socket { get; }
     }
 
 }

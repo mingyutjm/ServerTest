@@ -3,8 +3,15 @@
 namespace Server3
 {
 
+    /// <summary>
+    /// 网络连接对象
+    /// 1. 连接对象，通常是客户端对象Socket，
+    /// 2. socket连接上服务器
+    /// 3. Conn只有一个，就是自己
+    /// </summary>
     public class NetworkConnector : Network
     {
+        // 被连接的ip和port
         private string _ip;
         private int _port;
         private byte[] _testError = new byte[4];
@@ -92,26 +99,26 @@ namespace Server3
             }
         }
 
-        public bool HasRecvData()
-        {
-            if (!IsConnected())
-                return false;
-
-            if (_connects.Count != 1)
-            {
-                Log.Error("Error. NetworkConnector has two connect!!!!");
-                return false;
-            }
-
-            ConnectObj? conn = GetConnectObj();
-            return conn != null && conn.HasRecvData();
-        }
-
-        public Packet? GetRecvPacket()
-        {
-            ConnectObj? conn = GetConnectObj();
-            return conn?.GetRecvPacket();
-        }
+        // public bool HasRecvData()
+        // {
+        //     if (!IsConnected())
+        //         return false;
+        //
+        //     if (_connects.Count != 1)
+        //     {
+        //         Log.Error("Error. NetworkConnector has two connect!!!!");
+        //         return false;
+        //     }
+        //
+        //     ConnectObj? conn = GetConnectObj();
+        //     return conn != null && conn.HasRecvData();
+        // }
+        //
+        // public Packet? GetRecvPacket()
+        // {
+        //     ConnectObj? conn = GetConnectObj();
+        //     return conn?.GetRecvPacket();
+        // }
 
         public void SendPacket(Packet sendPacket)
         {

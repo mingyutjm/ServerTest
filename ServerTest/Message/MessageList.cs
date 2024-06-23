@@ -1,60 +1,55 @@
 ﻿namespace Server3.Message
 {
 
-    public class MessageList
+    public class MessageList : IReference
     {
         public delegate void HandleFunction(Packet p);
 
-        protected object _locker = new object();
-        protected List<Packet> _msgList = new List<Packet>(4);
-        protected List<Packet> _msgListCopy = new List<Packet>(4);
-        protected Dictionary<int, HandleFunction> _callbackHandle = new Dictionary<int, HandleFunction>();
+        // protected object _locker = new object();
+        // protected List<Packet> _msgList = new List<Packet>(4);
+        // protected List<Packet> _msgListCopy = new List<Packet>(4);
+        // protected Dictionary<int, HandleFunction> _callbackHandle = new Dictionary<int, HandleFunction>();
 
-        public void RegisterFunction(int msgId, HandleFunction handle)
+        protected MessageCallbackFunctionInfo? _callbacks;
+
+        public virtual void Dispose()
         {
-            lock (_locker)
-            {
-                _callbackHandle[msgId] = handle;
-            }
+            // foreach (var pac in _msgList)
+            // {
+            //     pac.Dispose();
+            // }
+            // _msgList.Clear();
+            // _msgListCopy.Clear();
+            // _callbackHandle.Clear();
+            _callbacks?.Dispose();
         }
 
-        public bool IsFollowMsgId(int msgId)
+        public void AttachCallbackHandler(MessageCallbackFunctionInfo callback)
         {
-            lock (_locker)
-            {
-                return _callbackHandle.ContainsKey(msgId);
-            }
+            _callbacks = callback;
+        }
+
+        // public void RegisterFunction(int msgId, HandleFunction handle)
+        // {
+        //     lock (_locker)
+        //     {
+        //         _callbackHandle[msgId] = handle;
+        //     }
+        // }
+
+        public bool IsFollowMsgId(Packet packet)
+        {
+            return _callbacks?.IsFollowMsgId(packet) ?? false;
         }
 
         public void ProcessPacket()
         {
-            lock (_locker)
-            {
-                _msgListCopy.AddRange(_msgList);
-                _msgList.Clear();
-            }
-
-            foreach (var packet in _msgListCopy)
-            {
-                if (_callbackHandle.TryGetValue(packet.MsgId, out var handleFunc))
-                {
-                    handleFunc(packet);
-                }
-                else
-                {
-                    Log.Warning($"packet has no handler. msg id {packet.MsgId}");
-                }
-            }
-            _msgListCopy.Clear();
+            _callbacks?.ProcessPacket();
         }
 
         public void AddPacket(Packet packet)
         {
-            // lock
-            lock (_locker)
-            {
-                _msgList.Add(packet);
-            }
+            _callbacks?.AddPacket(packet);
         }
 
         public void DispatchPacket(Packet packet)

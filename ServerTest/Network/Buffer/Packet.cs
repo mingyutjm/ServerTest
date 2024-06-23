@@ -26,14 +26,14 @@ public struct PacketHead
     }
 };
 
-public class Packet : Buffer
+public class Packet : Buffer, ISocketObject
 {
     private int _msgId;
     private Socket _socket;
 
     public int MsgId => _msgId;
     public Socket Socket => _socket;
-
+    
     public Packet() : this(0, null)
     {
     }

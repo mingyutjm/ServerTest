@@ -4,10 +4,10 @@ using Server3;
 namespace login
 {
 
-    public class PlayerMgr : IReference
+    public class LoginObjMgr : IReference
     {
-        private Dictionary<string, Socket> _accounts;
-        private Dictionary<Socket, Player> _players;
+        private Dictionary<string, Socket> _accounts = new Dictionary<string, Socket>();
+        private Dictionary<Socket, LoginObj> _players = new Dictionary<Socket, LoginObj>();
 
         public void Dispose()
         {
@@ -16,7 +16,7 @@ namespace login
 
         public void AddPlayer(Socket socket, string account, string password)
         {
-            if (_players.TryAdd(socket, new Player(socket, account, password)))
+            if (_players.TryAdd(socket, new LoginObj(socket, account, password)))
             {
                 _accounts[account] = socket;
             }
@@ -28,7 +28,7 @@ namespace login
 
         public void RemovePlayer(Socket socket)
         {
-            if (_players.TryGetValue(socket, out Player? player))
+            if (_players.TryGetValue(socket, out LoginObj? player))
             {
                 _accounts.Remove(player.Account);
                 _players.Remove(socket);
@@ -39,12 +39,12 @@ namespace login
             }
         }
 
-        public bool TryQueryPlayer(Socket socket, out Player? player)
+        public bool TryQueryPlayer(Socket socket, out LoginObj? player)
         {
             return _players.TryGetValue(socket, out player);
         }
 
-        public bool TryQueryPlayer(string account, out Player? player)
+        public bool TryQueryPlayer(string account, out LoginObj? player)
         {
             player = default;
             if (_accounts.TryGetValue(account, out Socket? socket))

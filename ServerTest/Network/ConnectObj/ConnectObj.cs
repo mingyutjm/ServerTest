@@ -4,6 +4,11 @@ namespace Server3;
 
 using TotalSizeType = ushort;
 
+/// <summary>
+/// 连接对象
+/// 1. 所有网络数据放入buffer
+/// 2. 
+/// </summary>
 public class ConnectObj : IReference
 {
     protected Network _network;
@@ -29,16 +34,10 @@ public class ConnectObj : IReference
         _sendBuffer.Dispose();
     }
 
-    public bool HasRecvData()
-    {
-        return _recvBuffer.HasData();
-    }
-
-    public Packet? GetRecvPacket()
-    {
-        return _recvBuffer.GetPacket();
-    }
-
+    /// <summary>
+    /// 接收RecvBuffer的数据，并让ThreadMgr分发数据
+    /// </summary>
+    /// <returns>RecvBuffer内是否有新消息处理</returns>
     public bool Recv()
     {
         bool hasRes = false;
@@ -52,32 +51,40 @@ public class ConnectObj : IReference
             }
 
             int emptySize = _recvBuffer.GetWriteBuffer(out writeBuf);
-            int dataSize = _socket.Receive(writeBuf, SocketFlags.None, out SocketError errorCode);
-            if (dataSize > 0)
+            try
             {
-                Log.Info($"recv size: {dataSize}");
-                _recvBuffer.FillData(dataSize);
-            }
-            else if (dataSize == 0)
-            {
-                if (errorCode == SocketError.Interrupted || errorCode == SocketError.WouldBlock)
+                int dataSize = _socket.Receive(writeBuf, SocketFlags.None, out SocketError errorCode);
+                if (dataSize > 0)
                 {
-                    hasRes = true;
+                    Log.Info($"recv size: {dataSize}");
+                    _recvBuffer.FillData(dataSize);
+                }
+                else if (dataSize == 0)
+                {
+                    if (errorCode == SocketError.Interrupted || errorCode == SocketError.WouldBlock)
+                    {
+                        hasRes = true;
+                        break;
+                    }
+
+                    Log.Error($"recv size: {dataSize}, error: {errorCode}");
                     break;
                 }
-
-                Log.Error($"recv size: {dataSize}, error: {errorCode}");
-                break;
-            }
-            else
-            {
-                if (errorCode == SocketError.Interrupted || errorCode == SocketError.WouldBlock)
+                else
                 {
-                    hasRes = true;
+                    if (errorCode == SocketError.Interrupted || errorCode == SocketError.WouldBlock)
+                    {
+                        hasRes = true;
+                        break;
+                    }
+
+                    Log.Error($"recv size: {dataSize}, error: {errorCode}");
                     break;
                 }
-
-                Log.Error($"recv size: {dataSize}, error: {errorCode}");
+            }
+            catch (Exception e)
+            {
+                Log.Exception(e);
                 break;
             }
         }
@@ -95,16 +102,10 @@ public class ConnectObj : IReference
         return hasRes;
     }
 
-    public bool HasSendData()
-    {
-        return _sendBuffer.HasData();
-    }
-
-    public void SendPacket(Packet packet)
-    {
-        _sendBuffer.AddPacket(packet);
-    }
-
+    /// <summary>
+    /// 发送SendBuffer内的数据
+    /// </summary>
+    /// <returns>SendBuffer内是否有数据要发送</returns>
     public bool Send()
     {
         while (true)
@@ -116,22 +117,67 @@ public class ConnectObj : IReference
             if (needSendSize <= 0)
                 return true;
 
-            int size = _socket.Send(pBuffer, SocketFlags.None, out SocketError errorCode);
-            if (size > 0)
+            try
             {
-                Log.Info($"send size: {needSendSize}");
-                _sendBuffer.RemoveData(size);
+                int size = _socket.Send(pBuffer, SocketFlags.None, out SocketError errorCode);
+                if (size > 0)
+                {
+                    Log.Info($"send size: {needSendSize}");
+                    _sendBuffer.RemoveData(size);
 
-                // 下一帧再发送
-                if (size < needSendSize)
-                    return true;
+                    // 下一帧再发送
+                    if (size < needSendSize)
+                        return true;
+                }
             }
-
-            if (size == -1)
+            catch (Exception e)
             {
-                Log.Error($"needSendSize: {needSendSize}, error: {errorCode}");
+                if (e is SocketException se)
+                {
+                    Log.Exception(se);
+                }
+                else if (e is ObjectDisposedException ode)
+                {
+                    Log.Exception(ode);
+                }
+                else
+                {
+                    Log.Exception(e);
+                }
                 return false;
             }
         }
+    }
+
+    /// <summary>
+    /// Buffer内是否有数据待接收
+    /// </summary>
+    /// <returns></returns>
+    public bool HasRecvData()
+    {
+        return _recvBuffer.HasData();
+    }
+
+    /// <summary>
+    /// SendBuffer内是否有数据待发送
+    /// </summary>
+    /// <returns></returns>
+    public bool HasSendData()
+    {
+        return _sendBuffer.HasData();
+    }
+
+    public Packet? GetRecvPacket()
+    {
+        return _recvBuffer.GetPacket();
+    }
+
+    /// <summary>
+    /// 将Packet放入sendBuffer
+    /// </summary>
+    /// <param name="packet"></param>
+    public void SendPacket(Packet packet)
+    {
+        _sendBuffer.AddPacket(packet);
     }
 }

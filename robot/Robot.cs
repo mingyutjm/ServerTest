@@ -24,6 +24,11 @@ namespace robot
         public override void Tick()
         {
             base.Tick();
+            if (_isSendMsg)
+            {
+                _gameThread.Stop();
+                return;
+            }
             if (IsConnected() && !_isSendMsg)
             {
                 TestMsg msg = new TestMsg();

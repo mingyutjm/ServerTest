@@ -4,6 +4,12 @@ using System.Net.Sockets;
 namespace Server3
 {
 
+    /// <summary>
+    /// 网络监听对象，用于服务器监听Socket用
+    /// 1. Tick Select
+    /// 2. 监听Socket
+    /// 3. Accept new socket
+    /// </summary>
     public class NetworkListener : Network
     {
         public override bool Init()
@@ -20,7 +26,6 @@ namespace Server3
             bool rt = Select();
             if (_readFds.Contains(_masterSocket))
                 Accept();
-            // return rt;
         }
 
         public bool Listen(string ip, int port)
