@@ -1,4 +1,5 @@
 ﻿using System.Net.Sockets;
+using login.Http;
 using MemoryPack;
 using Server3;
 using Server3.Message;
@@ -27,7 +28,7 @@ namespace login
             var msgCallbacks = new MessageCallbackFunction();
             AttachCallbackHandler(msgCallbacks);
 
-            msgCallbacks.RegisterFunction((int)MsgId.C2L_AccountCheckReq, HandleMsg_AccountCheckReq);
+            msgCallbacks.RegisterFunction((int)MsgId.AccountCheckReq, HandleMsg_AccountCheckReq);
             msgCallbacks.RegisterFunction((int)MsgId.AccountCheckToHttpRes, HandleMsg_AccountCheckToHttpRes);
         }
 
@@ -38,17 +39,17 @@ namespace login
         // 处理新的登录消息
         private void HandleMsg_AccountCheckReq(Packet packet)
         {
-            C2L_AccountCheckReq? sourceData = packet.Deserialize<C2L_AccountCheckReq>();
+            AccountCheckReq sourceData = packet.Deserialize<AccountCheckReq>();
             Socket fromSocket = packet.Socket;
 
-            Log.Info($"account check account: {sourceData!.account}");
+            Log.Info($"account check account: {sourceData.account}");
             // 检查是否已经登录过
-            if (_loginObjMgr.TryQueryPlayer(sourceData.account, out LoginObj player))
+            if (_loginObjMgr.TryQueryPlayer(sourceData.account, out _))
             {
                 // 已经登录过, 返回logging
-                C2L_AccountCheckRes responseData = new C2L_AccountCheckRes();
-                responseData.returnCode = (int)C2L_AccountCheckRes.ReturnCode.Logging;
-                var responsePacket = Packet.Create((int)MsgId.C2L_AccountCheckRes, fromSocket);
+                AccountCheckRes responseData = new AccountCheckRes();
+                responseData.returnCode = (int)AccountCheckRes.ReturnCode.Logging;
+                var responsePacket = Packet.Create((int)MsgId.AccountCheckRes, fromSocket);
                 responsePacket.SerializeToBuffer(responseData);
                 SendPacket(responsePacket);
 
@@ -61,11 +62,26 @@ namespace login
             // 更新信息
             _loginObjMgr.AddPlayer(fromSocket, sourceData.account, sourceData.password);
             // Http验证账号
+            HttpRequestAccount httpReq = new HttpRequestAccount(sourceData.account, sourceData.password);
+            ThreadMgr.Instance.AddObjToThread(httpReq);
         }
 
         // 处理请求Http登录的Res消息
         private void HandleMsg_AccountCheckToHttpRes(Packet packet)
         {
+            var res = packet.Deserialize<AccountCheckToHttpRes>();
+            if (_loginObjMgr.TryQueryPlayer(res.account, out LoginObj? player))
+            {
+                AccountCheckRes responseData = new AccountCheckRes();
+                responseData.returnCode = (int)AccountCheckRes.ReturnCode.Ok;
+                var responsePacket = Packet.Create((int)MsgId.AccountCheckRes, player!.Socket);
+                responsePacket.SerializeToBuffer(responseData);
+                SendPacket(responsePacket);
+            }
+            else
+            {
+                Log.Error($"Can't find player. account {res.account}");
+            }
         }
     }
 

@@ -5,8 +5,8 @@
     {
         None,
         TestMsg,
-        C2L_AccountCheckReq, // Client to login
-        C2L_AccountCheckRes, // Client to login
+        AccountCheckReq, // Client to login
+        AccountCheckRes, // Client to login
         AccountCheckToHttpRes,
         NetworkDisconnectToNet,
     }

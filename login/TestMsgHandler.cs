@@ -27,14 +27,7 @@ namespace login
         private void HandleMsg(Packet packet)
         {
             var obj = packet.Deserialize<TestMsg>();
-            if (obj != null)
-            {
-                Log.Info(obj!.msg);
-            }
-            else
-            {
-                Log.Error("Deserialize failed!");
-            }
+            Log.Info(obj!.msg);
         }
     }
 

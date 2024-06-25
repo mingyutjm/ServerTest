@@ -55,8 +55,11 @@ namespace Server3
                     tmpList[i] = _objects[i];
             }
 
-            foreach (var obj in tmpList)
+            foreach (ThreadObject? obj in tmpList)
             {
+                if (obj == null)
+                    continue;
+
                 obj.ProcessPacket();
                 obj.Tick();
 

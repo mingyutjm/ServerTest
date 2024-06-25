@@ -5,28 +5,28 @@ namespace Server3.Message
 {
 
     [MemoryPackable]
-    public partial class TestMsg
+    public partial struct TestMsg
     {
         public string msg;
         public int index;
     }
 
     [MemoryPackable]
-    public partial class C2L_AccountCheckReq
+    public partial struct AccountCheckReq
     {
         public string account;
         public string password;
     }
 
     [MemoryPackable]
-    public partial class AccountCheckToHttpRes
+    public partial struct AccountCheckToHttpRes
     {
-        public int returnCode;
         public string account;
+        public int returnCode;
     }
 
     [MemoryPackable]
-    public partial class C2L_AccountCheckRes
+    public partial struct AccountCheckRes
     {
         public enum ReturnCode
         {

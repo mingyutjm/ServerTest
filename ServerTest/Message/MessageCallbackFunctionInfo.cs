@@ -68,6 +68,9 @@ namespace Server3.Message
 
             foreach (var packet in tmpList)
             {
+                if (packet == null)
+                    continue;
+
                 if (_callbacks.TryGetValue(packet.MsgId, out var handleFunc))
                 {
                     handleFunc.Invoke(packet);
@@ -123,6 +126,9 @@ namespace Server3.Message
 
             foreach (var packet in tmpList)
             {
+                if (packet == null)
+                    continue;
+
                 if (_callbacks.TryGetValue(packet.MsgId, out var callback))
                 {
                     callback(packet);

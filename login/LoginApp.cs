@@ -13,7 +13,6 @@ namespace login
         {
             AddListenerToThread("127.0.0.1", 2233);
             _threadMgr.AddObjToThread(new TestMsgHandler());
-
             _threadMgr.AddObjToThread(new Account());
         }
     }
