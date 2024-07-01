@@ -77,13 +77,6 @@
         {
             lock (_threadLocker)
             {
-                // 在加入之前初始化一下
-                if (!obj.Init())
-                {
-                    Log.Error("AddThreadObj Failed. ThreadObject init failed.");
-                    return false;
-                }
-
                 if (_threads.Count == 0)
                 {
                     Log.Error("AddThreadObj Failed. no thead.");

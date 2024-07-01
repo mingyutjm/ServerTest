@@ -7,6 +7,12 @@ namespace robot
     public class Robot : NetworkConnector
     {
         private bool _isSendMsg = false;
+        private string _account;
+
+        public Robot(string account)
+        {
+            _account = account;
+        }
 
         public override bool Init()
         {

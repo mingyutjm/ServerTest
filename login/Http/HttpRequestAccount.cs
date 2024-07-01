@@ -14,7 +14,7 @@ namespace login.Http
 
         public HttpRequestAccount(string account, string password)
         {
-            _url = "10.10.0.120/member_login_t.php";
+            _url = "192.168.31.120/member_login_t.php";
             _account = account;
             _password = password;
         }
