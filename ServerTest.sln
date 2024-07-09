@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "robot", "robot\robot.csproj
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "login", "login\login.csproj", "{2A4BBA04-9257-4B68-B4A1-3B32CA2453FF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "libCore", "libCore\libCore.csproj", "{29F8CFA7-1AA3-442A-97C5-21B21E0C26AA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{2A4BBA04-9257-4B68-B4A1-3B32CA2453FF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2A4BBA04-9257-4B68-B4A1-3B32CA2453FF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2A4BBA04-9257-4B68-B4A1-3B32CA2453FF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{29F8CFA7-1AA3-442A-97C5-21B21E0C26AA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{29F8CFA7-1AA3-442A-97C5-21B21E0C26AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{29F8CFA7-1AA3-442A-97C5-21B21E0C26AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{29F8CFA7-1AA3-442A-97C5-21B21E0C26AA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
