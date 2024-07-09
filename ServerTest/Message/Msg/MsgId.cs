@@ -9,6 +9,7 @@
         AccountCheckRes, // Client to login
         AccountCheckToHttpRes,
         NetworkDisconnectToNet,
+        RobotSyncState,
     }
 
 }

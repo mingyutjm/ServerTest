@@ -1,6 +1,10 @@
 ﻿namespace Server3
 {
 
+    /// <summary>
+    /// 一个进程一个ServerApp
+    /// 其中主要包含一个ThreadMgr, 用于处理分发消息以及tick threadObject
+    /// </summary>
     public abstract class ServerApp
     {
         protected AppType _appType;
@@ -32,7 +36,7 @@
             UpdateTime();
 
             // 创建线程
-            for (int i = 0; i < 3; i++)
+            for (int i = 0; i < 4; i++)
             {
                 _threadMgr.NewThread();
             }
@@ -56,7 +60,7 @@
             while (isRun)
             {
                 UpdateTime();
-                Thread.Sleep(10);
+                _threadMgr.Tick();
                 isRun = _threadMgr.IsGameLoop();
             }
         }

@@ -5,7 +5,16 @@
     {
         // Mgr
         protected bool _isInit;
-        protected static ThreadMgr s_instance;
+        protected static ThreadMgr? s_instance;
+        public static ThreadMgr Instance => s_instance ?? throw new Exception("Instance is not init");
+
+        // Fields
+        private ulong _lastThreadSn = 0;
+        private object _threadLocker = new object();
+        private List<GameThread> _threads = new List<GameThread>(4);
+
+        private object _locatorLocker = new object();
+        private Dictionary<AppType, Network> _networkLocator = new Dictionary<AppType, Network>(1);
 
         public static ThreadMgr Create()
         {
@@ -13,15 +22,6 @@
                 s_instance = new ThreadMgr();
             return s_instance;
         }
-
-        public static ThreadMgr Instance => s_instance ?? throw new Exception("Instance is not init");
-
-        private ulong _lastThreadSn = 0;
-        private object _threadLocker = new object();
-        private List<GameThread> _threads = new List<GameThread>(4);
-
-        private object _locatorLocker = new object();
-        private Dictionary<AppType, Network> _networkLocator = new Dictionary<AppType, Network>(1);
 
         public void Init()
         {
