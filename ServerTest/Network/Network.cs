@@ -1,4 +1,5 @@
 ﻿using System.Net.Sockets;
+using Server3.Message;
 
 namespace Server3;
 
@@ -11,6 +12,9 @@ public abstract class Network : ThreadObject, ISocketObject
 {
     protected Socket? _masterSocket;
     protected Dictionary<Socket, ConnectObj> _connects = new Dictionary<Socket, ConnectObj>();
+    protected object _sendMsgLocker = new object();
+    protected Queue<Packet> _sendMsgQueue = new Queue<Packet>();
+    protected bool _isBroadCast = true;
 
     // fd_set, readfds, writefds, exceptfds
     protected List<Socket?> _readFds = new List<Socket?>();
@@ -18,6 +22,7 @@ public abstract class Network : ThreadObject, ISocketObject
     protected List<Socket?> _exceptFds = new List<Socket?>();
 
     public Socket Socket => _masterSocket;
+    public bool IsBroadCast => _isBroadCast;
 
     public override void Dispose()
     {
@@ -101,6 +106,13 @@ public abstract class Network : ThreadObject, ISocketObject
         _connects.Add(socket, conn);
     }
 
+    public override void RegisterMsgFunction()
+    {
+        var pMsgCallBack = new MessageCallbackFunction();
+        AttachCallbackHandler(pMsgCallBack);
+        pMsgCallBack.RegisterFunction((int)MsgId.NetworkDisconnectToNet, HandleDisconnect);
+    }
+
     protected static void SetSocketOpt(Socket socket)
     {
         // 1.端口关闭后马上重新启用
@@ -121,5 +133,9 @@ public abstract class Network : ThreadObject, ISocketObject
         Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         SetSocketOpt(socket);
         return socket;
+    }
+
+    private void HandleDisconnect(Packet packet)
+    {
     }
 }

@@ -1,0 +1,21 @@
+@startuml
+
+interface IReference
+class SnObject
+
+class MessageList implements IReference
+
+
+class Network extends ThreadObject
+class NetworkConnector extends Network
+class NetworkListener extends Network
+
+class ConnectObj implements IReference
+
+class ThreadObject extends MessageList
+class ThreadObjectList extends SnObject
+class GameThread extends ThreadObjectList
+class ThreadMgr extends ThreadObjectList
+
+
+@enduml
