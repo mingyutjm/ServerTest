@@ -1,21 +1,67 @@
 @startuml
 
 interface IReference
-class SnObject
+class SnObject {
+    + ulong Sn
+}
 
-class MessageList implements IReference
+abstract class MessageCallBackFunctionInfo {
+    # List<Packet> msgList
+}
+class MessageList implements IReference {
+    + {static} SendPacket(Packet)
+    + {static} DispatchPacket(Packet)
+    + AttachCallBackHandler(MsgCallbackFunc)
+    + IsFollowMsgId(Packet)
+    + AddPacket(Packet)
+    + ProcessPackets()
+}
+MessageList *.. MessageCallBackFunctionInfo
 
+abstract class Network extends ThreadObject {
+    + Select()
+    # CreateSocket()
+    # CreateConnectObj(Socket)
+}
+class NetworkConnector extends Network {
+    + Connect(ip, port)
+}
+class NetworkListener extends Network {
+    + bool Listen(ip, port)
+    # Accept()
+}
 
-class Network extends ThreadObject
-class NetworkConnector extends Network
-class NetworkListener extends Network
+class ConnectObj implements IReference {
+    + Recv()
+    + Send()
+    + SendPacket(Packet)
+}
 
-class ConnectObj implements IReference
-
-class ThreadObject extends MessageList
-class ThreadObjectList extends SnObject
+class ThreadObject extends MessageList {
+    + RegisterMsgFunction()
+}
+class ThreadObjectList extends SnObject {
+    + AddObject(ThreadObject)
+    + AddPacketToList(Packet)
+}
 class GameThread extends ThreadObjectList
-class ThreadMgr extends ThreadObjectList
+class ThreadMgr extends ThreadObjectList {
+    + NewThread()
+    + AddObjToThread(ThreadObject)
+    + AddNetworkToThread(AppType,Network)
+    + DispatchPacket(Packet)
+    + SendPacket(Packet)
+}
+GameThread "many" --* "1" ThreadMgr
+ThreadObjectList o.. ThreadObject
+ConnectObj "1" <.. "1" Network
+Network "1" *.. "many" ConnectObj
 
+abstract class ServerApp {
+    + ThreadMgr
+    + StartAllThread()
+    + AddListenerToThread(ip, port)
+}
+ServerApp o.. ThreadMgr
 
 @enduml

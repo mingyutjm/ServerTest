@@ -11,7 +11,7 @@ namespace Server3.Message
         protected List<Packet> _msgList = new List<Packet>();
 
         public abstract bool IsFollowMsgId(Packet packet);
-        public abstract void ProcessPacket();
+        public abstract void ProcessPackets();
 
         public void AddPacket(Packet packet)
         {
@@ -53,7 +53,7 @@ namespace Server3.Message
             }
         }
 
-        public override void ProcessPacket()
+        public override void ProcessPackets()
         {
             Packet[]? tmpList = null;
             lock (_msgLocker)
@@ -65,7 +65,6 @@ namespace Server3.Message
                     tmpList[i] = _msgList[i];
                 _msgList.Clear();
             }
-
             foreach (var packet in tmpList)
             {
                 if (packet == null)
@@ -76,7 +75,6 @@ namespace Server3.Message
                     handleFunc.Invoke(packet);
                 }
             }
-
             ArrayPool<Packet>.Shared.Return(tmpList);
         }
     }
@@ -111,7 +109,7 @@ namespace Server3.Message
             return false;
         }
 
-        public override void ProcessPacket()
+        public override void ProcessPackets()
         {
             Packet[]? tmpList = null;
             lock (_msgLocker)

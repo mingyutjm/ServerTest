@@ -15,8 +15,10 @@ public class ConnectObj : IReference
     protected Socket _socket;
     protected RecvBuffer _recvBuffer;
     protected SendBuffer _sendBuffer;
+    protected bool isClosed = false;
 
     public Socket Socket => _socket;
+    public bool IsClosed => isClosed;
 
     public ConnectObj(Network network, Socket socket)
     {
@@ -32,6 +34,11 @@ public class ConnectObj : IReference
         _socket.Close();
         _recvBuffer.Dispose();
         _sendBuffer.Dispose();
+    }
+
+    public void Close()
+    {
+        isClosed = true;
     }
 
     /// <summary>

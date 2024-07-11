@@ -6,8 +6,6 @@
         protected bool _isRun = true;
         protected Thread _thread;
 
-        private List<ThreadObject> _objects = new List<ThreadObject>(4);
-
         public bool IsRun => _isRun;
 
         public virtual void Dispose()

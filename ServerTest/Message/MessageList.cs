@@ -44,7 +44,7 @@
 
         public void ProcessPacket()
         {
-            _callbacks?.ProcessPacket();
+            _callbacks?.ProcessPackets();
         }
 
         public void AddPacket(Packet packet)
@@ -52,12 +52,12 @@
             _callbacks?.AddPacket(packet);
         }
 
-        public void DispatchPacket(Packet packet)
+        public static void DispatchPacket(Packet packet)
         {
             ThreadMgr.Instance.DispatchPacket(packet);
         }
-
-        public void SendPacket(Packet packet)
+        
+        public static void SendPacket(Packet packet)
         {
             ThreadMgr.Instance.SendPacket(packet);
         }

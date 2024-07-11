@@ -1,4 +1,5 @@
-﻿using System.Net.Sockets;
+﻿using System.Buffers;
+using System.Net.Sockets;
 using Server3.Message;
 
 namespace Server3;
@@ -13,13 +14,15 @@ public abstract class Network : ThreadObject, ISocketObject
     protected Socket? _masterSocket;
     protected Dictionary<Socket, ConnectObj> _connects = new Dictionary<Socket, ConnectObj>();
     protected object _sendMsgLocker = new object();
-    protected Queue<Packet> _sendMsgQueue = new Queue<Packet>();
+    protected List<Packet> _sendMsgList = new List<Packet>();
     protected bool _isBroadCast = true;
 
     // fd_set, readfds, writefds, exceptfds
     protected List<Socket?> _readFds = new List<Socket?>();
     protected List<Socket?> _writeFds = new List<Socket?>();
     protected List<Socket?> _exceptFds = new List<Socket?>();
+
+    private List<Socket> _waitingRemoveConn = new List<Socket>(4);
 
     public Socket Socket => _masterSocket;
     public bool IsBroadCast => _isBroadCast;
@@ -36,6 +39,28 @@ public abstract class Network : ThreadObject, ISocketObject
         base.Dispose();
     }
 
+    public override void Tick()
+    {
+        Packet[]? tmpList = null;
+        lock (_sendMsgLocker)
+        {
+            if (_sendMsgList.Count == 0)
+                return;
+            tmpList = ArrayPool<Packet>.Shared.Rent(_sendMsgList.Count);
+            for (int i = 0; i < _sendMsgList.Count; i++)
+                tmpList[i] = _sendMsgList[i];
+            _sendMsgList.Clear();
+        }
+        foreach (var p in tmpList)
+        {
+            if (_connects.TryGetValue(p.Socket, out var conn))
+            {
+                conn.SendPacket(p);
+            }
+        }
+        ArrayPool<Packet>.Shared.Return(tmpList);
+    }
+
     public bool Select()
     {
         _readFds.Clear();
@@ -45,6 +70,20 @@ public abstract class Network : ThreadObject, ISocketObject
         _readFds.Add(_masterSocket);
         _writeFds.Add(_masterSocket);
         _exceptFds.Add(_masterSocket);
+
+        // Remove closed conn
+        foreach (var (socket, conn) in _connects)
+        {
+            if (conn.IsClosed)
+            {
+                _waitingRemoveConn.Add(socket);
+            }
+        }
+        foreach (var socket in _waitingRemoveConn)
+        {
+            _connects.Remove(socket);
+        }
+        _waitingRemoveConn.Clear();
 
         foreach (var (socket, conn) in _connects)
         {
@@ -113,6 +152,14 @@ public abstract class Network : ThreadObject, ISocketObject
         pMsgCallBack.RegisterFunction((int)MsgId.NetworkDisconnectToNet, HandleDisconnect);
     }
 
+    public new void SendPacket(Packet p)
+    {
+        lock (_sendMsgLocker)
+        {
+            _sendMsgList.Add(p);
+        }
+    }
+
     protected static void SetSocketOpt(Socket socket)
     {
         // 1.端口关闭后马上重新启用
@@ -137,5 +184,9 @@ public abstract class Network : ThreadObject, ISocketObject
 
     private void HandleDisconnect(Packet packet)
     {
+        if (_connects.TryGetValue(packet.Socket, out var conn))
+        {
+            conn.Close();
+        }
     }
 }

@@ -33,7 +33,7 @@ public class Packet : Buffer, ISocketObject
 
     public int MsgId => _msgId;
     public Socket Socket => _socket;
-    
+
     public Packet() : this(0, null)
     {
     }
@@ -75,16 +75,6 @@ public class Packet : Buffer, ISocketObject
         return _buffer;
     }
 
-    public void AddBuffer(byte[] source, int size)
-    {
-        while (GetEmptySize() < size)
-        {
-            ReAllocBuffer();
-        }
-        Array.Copy(source, _buffer, size);
-        FillData(size);
-    }
-
     public int GetDataLength()
     {
         return _endIndex - _beginIndex;
@@ -103,7 +93,13 @@ public class Packet : Buffer, ISocketObject
     public void SerializeToBuffer<T>(T obj)
     {
         byte[] binData = MemoryPackSerializer.Serialize(obj);
-        AddBuffer(binData, binData.Length);
+        // AddBuffer(binData, binData.Length);
+        while (GetEmptySize() < binData.Length)
+        {
+            ReAllocBuffer();
+        }
+        Array.Copy(binData, _buffer, binData.Length);
+        FillData(binData.Length);
     }
 
     public T? Deserialize<T>()
@@ -112,4 +108,14 @@ public class Packet : Buffer, ISocketObject
         T? obj = MemoryPackSerializer.Deserialize<T>(bufferSpan);
         return obj;
     }
+
+    // private void AddBuffer(byte[] source, int size)
+    // {
+    //     while (GetEmptySize() < size)
+    //     {
+    //         ReAllocBuffer();
+    //     }
+    //     Array.Copy(source, _buffer, size);
+    //     FillData(size);
+    // }
 }

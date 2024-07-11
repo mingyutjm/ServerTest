@@ -17,10 +17,6 @@ namespace Server3
             return true;
         }
 
-        public override void RegisterMsgFunction()
-        {
-        }
-
         public override void Tick()
         {
             bool rt = Select();
