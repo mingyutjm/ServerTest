@@ -19,6 +19,10 @@
                 return ret;
             }
         }
+
+        public void Stop()
+        {
+        }
     }
 
 }

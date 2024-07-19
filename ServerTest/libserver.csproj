@@ -9,6 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Folder Include="Base\Pool\ResourcePool\" />
     <Folder Include="Network\" />
   </ItemGroup>
 
