@@ -1,6 +1,5 @@
 ﻿namespace Server3.Message
 {
-
     public class MessageList : IReference
     {
         public delegate void HandleFunction(Packet p);
@@ -42,7 +41,7 @@
             return _callbacks?.IsFollowMsgId(packet) ?? false;
         }
 
-        public void ProcessPacket()
+        public void ProcessPacket(Packet packet)
         {
             _callbacks?.ProcessPackets();
         }
@@ -56,11 +55,10 @@
         {
             ThreadMgr.Instance.DispatchPacket(packet);
         }
-        
+
         public static void SendPacket(Packet packet)
         {
             ThreadMgr.Instance.SendPacket(packet);
         }
     }
-
 }

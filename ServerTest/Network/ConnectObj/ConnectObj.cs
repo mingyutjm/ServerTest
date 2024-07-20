@@ -1,4 +1,5 @@
 ﻿using System.Net.Sockets;
+using Server3.Message;
 
 namespace Server3;
 
@@ -29,13 +30,21 @@ public class ConnectObj : IReference
         _sendBuffer = new SendBuffer(Const.DefaultSendBufferSize, this);
     }
 
+    // TODO:
     public void Dispose()
     {
+        // if (!Global.Instance.IsStop)
+        // {
+        //     Packet p = Packet.Create((int)MsgId.NetworkDisconnectToNet, _socket);
+        //     MessageList.DispatchPacket(p);
+        // }
+
         _socket.Close();
         _recvBuffer.Dispose();
         _sendBuffer.Dispose();
     }
 
+    // TODO: new Packet(Proto::MsgId::MI_NetworkDisconnectToNet, GetSocket());
     public void Close()
     {
         isClosed = true;
@@ -103,9 +112,18 @@ public class ConnectObj : IReference
                 var packet = _recvBuffer.GetPacket();
                 if (packet == null)
                     break;
-                ThreadMgr.Instance.DispatchPacket(packet);
+
+                if (_network.IsBroadCast && _network.GetThread() != null)
+                {
+                    ThreadMgr.Instance.DispatchPacket(packet);
+                }
+                else
+                {
+                    _network.GetThread().AddPacketToList(packet);
+                }
             }
         }
+
         return hasRes;
     }
 
@@ -136,6 +154,10 @@ public class ConnectObj : IReference
                     if (size < needSendSize)
                         return true;
                 }
+                else
+                {
+                    return false;
+                }
             }
             catch (Exception e)
             {
@@ -151,6 +173,7 @@ public class ConnectObj : IReference
                 {
                     Log.Exception(e);
                 }
+
                 return false;
             }
         }

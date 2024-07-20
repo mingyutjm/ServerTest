@@ -6,9 +6,11 @@
         private object _locker = new object();
         private uint _serverId = 0;
         private uint _snTicket = 1;
+        private bool _isStop = false;
 
         public ulong timeTick;
         public int yearDay;
+        public bool IsStop => _isStop;
 
         public ulong GenerateSn()
         {
@@ -22,6 +24,7 @@
 
         public void Stop()
         {
+            _isStop = true;
         }
     }
 

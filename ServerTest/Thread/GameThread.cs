@@ -3,13 +3,22 @@
 
     public class GameThread : ThreadObjectList, IReference
     {
-        protected bool _isRun = true;
+        public enum State
+        {
+            Init,
+            Run,
+            Stop
+        }
+
+        protected State _state = State.Init;
         protected Thread _thread;
 
-        public bool IsRun => _isRun;
+        public bool IsRun => _state == State.Run;
 
-        public virtual void Dispose()
+        public virtual bool Dispose()
         {
+            if (!_thread.IsAlive)
+                return true;
             foreach (var obj in _objects)
             {
                 obj.Dispose();
@@ -20,12 +29,13 @@
 
         public virtual bool Start()
         {
-            _isRun = true;
             _thread = new Thread(() =>
             {
-                while (_isRun)
+                _state = State.Run;
+                while (_state == State.Run && !Global.Instance.IsStop)
                 {
                     Tick();
+                    Thread.Sleep(1);
                 }
             });
             _thread.Start();
@@ -34,11 +44,7 @@
 
         public void Stop()
         {
-            if (_isRun)
-            {
-                _isRun = false;
-                _thread.Join();
-            }
+            _state = State.Stop;
         }
     }
 

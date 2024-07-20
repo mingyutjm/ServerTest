@@ -3,14 +3,15 @@
 namespace Server3
 {
 
-    public class ThreadObjectList : SnObject
+    public class ThreadObjectList : SnObject, IReference
     {
-        protected List<ThreadObject> _objects = new List<ThreadObject>(4);
-        protected object _locker = new object();
+        protected CacheRefresh<ThreadObject> _objects = CacheRefresh<ThreadObject>.Create();
+        protected CacheSwap<Packet> _packets = CacheSwap<Packet>.Create();
+        protected List<ThreadObject> _cacheDeleteList = new List<ThreadObject>(16);
 
         public void AddObject(ThreadObject obj)
         {
-            lock (_locker)
+            lock (_objects)
             {
                 if (!obj.Init())
                 {
@@ -19,7 +20,7 @@ namespace Server3
                 else
                 {
                     obj.RegisterMsgFunction();
-                    _objects.Add(obj);
+                    _objects.AddCache.Add(obj);
                     if (this is GameThread thread)
                     {
                         obj.SetThread(thread);
@@ -30,50 +31,70 @@ namespace Server3
 
         public void AddPacketToList(Packet packet)
         {
-            lock (_locker)
+            lock (_packets)
             {
-                foreach (var obj in _objects)
-                {
-                    if (obj.IsFollowMsgId(packet))
-                    {
-                        obj.AddPacket(packet);
-                    }
-                }
+                _packets.WriteCache.Add(packet);
             }
         }
 
         public void Tick()
         {
             ThreadObject[]? tmpList = null;
-            lock (_locker)
+            lock (_objects)
             {
-                if (_objects.Count == 0)
-                    return;
-
-                tmpList = ArrayPool<ThreadObject>.Shared.Rent(_objects.Count);
-                for (int i = 0; i < _objects.Count; i++)
-                    tmpList[i] = _objects[i];
+                if (_objects.CanSwap())
+                {
+                    _objects.Swap(_cacheDeleteList);
+                    foreach (var toDelete in _cacheDeleteList)
+                    {
+                        toDelete.Dispose();
+                    }
+                }
             }
 
-            foreach (ThreadObject? obj in tmpList)
+            lock (_packets)
             {
-                if (obj == null)
-                    continue;
+                if (_packets.CanSwap())
+                {
+                    _packets.Swap();
+                }
+            }
 
-                obj.ProcessPacket();
+            var objList = _objects.ReadCache;
+            var msgList = _packets.ReadCache;
+
+            foreach (var obj in objList)
+            {
+                foreach (var packet in msgList)
+                {
+                    if (obj.IsFollowMsgId(packet))
+                    {
+                        obj.ProcessPacket(packet);
+                    }
+                }
                 obj.Tick();
 
                 if (!obj.IsActive)
                 {
-                    lock (_locker)
-                    {
-                        _objects.Remove(obj);
-                        obj.Dispose();
-                    }
+                    _objects.RemoveCache.Add(obj);
                 }
             }
-            ArrayPool<ThreadObject>.Shared.Return(tmpList);
-            Thread.Sleep(1);
+
+            msgList.Clear();
+        }
+
+        public virtual void Dispose()
+        {
+            lock (_objects)
+            {
+                _objects.Dispose();
+            }
+
+            lock (_packets)
+            {
+                _packets.Dispose();
+            }
+
         }
     }
 
