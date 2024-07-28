@@ -1,6 +1,14 @@
 ﻿namespace Server3
 {
 
+    public interface IPoolObj : IReference
+    {
+        public void OnGet();
+
+        /// On back to pool
+        public void OnRelease();
+    }
+
     public interface IPoolObj<TArg> : IReference
     {
         /// <summary>

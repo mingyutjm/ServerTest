@@ -3,10 +3,32 @@
 
     public static class Obj
     {
+        public static TObj Create<TObj>() where TObj : IPoolObj, new()
+        {
+            ObjPool<TObj> pool = ObjPoolCenter.Get<TObj>();
+            return pool.Get();
+        }
+
         public static TObj Create<TObj, TArg>(TArg arg) where TObj : IPoolObj<TArg>, new()
         {
             ObjPool<TObj, TArg> pool = ObjPoolCenter.Get<TObj, TArg>();
             return pool.Get(arg);
+        }
+
+        /// <summary>
+        /// class type use
+        /// </summary>
+        /// <param name="obj">IPoolObj</param>
+        /// <returns>Get pool success or fail</returns>
+        public static bool Destroy<TObj>(TObj? obj) where TObj : class, IPoolObj, new()
+        {
+            if (obj == null)
+                return false;
+            IObjPool pool = ObjPoolCenter.Get<TObj>();
+            // if (pool == null)
+            //     return false;
+            pool.Release(obj);
+            return true;
         }
 
         /// <summary>

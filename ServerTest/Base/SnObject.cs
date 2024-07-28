@@ -16,6 +16,11 @@
         {
             _sn = sn;
         }
+
+        public void ResetSn()
+        {
+            _sn = Global.Instance.GenerateSn();
+        }
     }
 
 }
